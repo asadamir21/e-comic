@@ -65,7 +65,7 @@ class Window(QMainWindow):
         BibliothèqueButton = QAction(QIcon("Images/Bibliothèque.png"), 'Bibliothèque', self)
         BibliothèqueButton.setShortcut('Ctrl+L')
         BibliothèqueButton.setStatusTip('Bibliothèque')
-        #BibliothèqueButton.triggered.connect(self.SaveWindow)
+        BibliothèqueButton.triggered.connect(self.Library)
         FichierMenu.addAction(BibliothèqueButton)
 
         # Quitter Button
@@ -252,7 +252,6 @@ class Window(QMainWindow):
 
     # Next Image Button
     def NextImage(self, ComicImageList, ):
-
         if self.CurrentImageIndex == 0:
             self.PreviousButton.setDisabled(False)
 
@@ -265,24 +264,89 @@ class Window(QMainWindow):
 
     # Button Double Click
     def ButtonDoubleClick(self, ButtonItemName, ButtonList, ComicImageList):
+        Button = self.sender()
+        CurrentButtonIndex = ButtonList.index(Button)
+
+
+        if CurrentButtonIndex == 0:
+            self.PreviousButton.setDisabled(True)
+
+        elif CurrentButtonIndex == len(ComicImageList)-1:
+            self.NextButton.setDisabled(True)
+
+        else:
+            self.PreviousButton.setDisabled(False)
+            self.NextButton.setDisabled(False)
+
+        self.CurrentImageIndex = CurrentButtonIndex
+
+        self.MainImageLabel.setPixmap(ComicImageList[self.CurrentImageIndex].scaled(self.MainImageLabel.width(), self.MainImageLabel.height(),Qt.KeepAspectRatio))
+
+    # Library
+    def Library(self):
         try:
-            Button = self.sender()
-            CurrentButtonIndex = ButtonList.index(Button)
+            # Library Tab
+            LibraryTab = QWidget()
+            LibraryTab.setGeometry(QRect(0, 0,
+                                         self.tabWidget.width(),
+                                         self.tabWidget.height()))
+
+            # Box Layout for Library Tab
+            LibraryTabLayout = QHBoxLayout(LibraryTab)
+            LibraryTabLayout.setContentsMargins(0, 0, 0, 0)
+
+            # Table for Word Frequency
+            LibraryTable = QTableWidget()
+            LibraryTable.setColumnCount(8)
+            LibraryTable.setGeometry(0, 0,
+                                     LibraryTab.width(),
+                                     LibraryTab.height())
+            LibraryTabLayout.addWidget(LibraryTable)
+
+            LibraryTable.setWindowFlags(LibraryTable.windowFlags() | Qt.MSWindowsFixedSizeDialogHint)
+
+            LibraryTable.setHorizontalHeaderLabels(["Cover", "Title", "Author", "Year", "Tags", "Quality/5", "Edit", "Delete"])
+            LibraryTable.horizontalHeader().setStyleSheet("::section {""background-color: grey;  color: white;}")
 
 
-            if CurrentButtonIndex == 0:
-                self.PreviousButton.setDisabled(True)
+            for i in range(LibraryTable.columnCount()):
+                LibraryTable.horizontalHeaderItem(i).setFont(QFont("Ariel Black", 12))
+                LibraryTable.horizontalHeaderItem(i).setFont(QFont(LibraryTable.horizontalHeaderItem(i).text(), weight=QFont.Bold))
 
-            elif CurrentButtonIndex == len(ComicImageList)-1:
-                self.NextButton.setDisabled(True)
 
-            else:
-                self.PreviousButton.setDisabled(False)
-                self.NextButton.setDisabled(False)
+            # for row in rowList:
+            #     WordFrequencyTable.insertRow(rowList.index(row))
+            #     for item in row:
+            #         if row.index(item) == 4:
+            #             ptext = QPlainTextEdit()
+            #             ptext.setReadOnly(True)
+            #             ptext.setPlainText(item);
+            #             ptext.setFixedHeight(self.tabWidget.height() / 15)
+            #             WordFrequencyTable.setCellWidget(rowList.index(row), row.index(item), ptext)
+            #
+            #         else:
+            #             intItem = QTableWidgetItem()
+            #             intItem.setData(Qt.EditRole, QVariant(item))
+            #             WordFrequencyTable.setItem(rowList.index(row), row.index(item), intItem)
+            #             WordFrequencyTable.item(rowList.index(row), row.index(item)).setTextAlignment(
+            #                 Qt.AlignHCenter | Qt.AlignVCenter)
+            #             WordFrequencyTable.item(rowList.index(row), row.index(item)).setFlags(
+            #                 Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+            #
+            # WordFrequencyTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
+            # WordFrequencyTable.resizeColumnsToContents()
+            # WordFrequencyTable.resizeRowsToContents()
 
-            self.CurrentImageIndex = CurrentButtonIndex
+            LibraryTable.setSortingEnabled(True)
+            LibraryTable.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
 
-            self.MainImageLabel.setPixmap(ComicImageList[self.CurrentImageIndex].scaled(self.MainImageLabel.width(), self.MainImageLabel.height(),Qt.KeepAspectRatio))
+
+            for i in range(LibraryTable.columnCount()):
+                LibraryTable.horizontalHeader().setSectionResizeMode(i, QHeaderView.Stretch)
+
+
+            self.tabWidget.addTab(LibraryTab, 'Bibliothèque')
+            self.tabWidget.setCurrentWidget(LibraryTab)
 
         except Exception as e:
             print(str(e))
