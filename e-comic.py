@@ -129,13 +129,10 @@ class Window(QMainWindow):
         self.toolbar.setToolButtonStyle(Qt.ToolButtonIconOnly | Qt.AlignLeading)  # <= Toolbuttonstyle
         self.toolbar.setMovable(False)
 
-        WordAct = QAction(QIcon('Images/Word.png'), 'Word', self)
-        #WordAct.triggered.connect(lambda: self.ImportFileWindow("Word"))
-        self.toolbar.addAction(WordAct)
+        # WordAct = QAction(QIcon('Images/Word.png'), 'Word', self)
+        # #WordAct.triggered.connect(lambda: self.ImportFileWindow("Word"))
+        # self.toolbar.addAction(WordAct)
 
-        WordAct2 = QAction(QIcon('Word.png'), 'Word', self)
-        # WordAct.triggered.connect(lambda: self.ImportFileWindow("Word"))
-        self.toolbar.addAction(WordAct2)
 
         self.toolbar.addSeparator()
         self.toolbar.setContextMenuPolicy(Qt.PreventContextMenu)
@@ -439,136 +436,132 @@ class Window(QMainWindow):
 
     # Edit Row
     def EditRowDialog(self, df, Table):
-        try:
-            button = self.sender()
-            if button:
-                row = Table.indexAt(button.pos()).row()
+        button = self.sender()
+        if button:
+            row = Table.indexAt(button.pos()).row()
 
-            EditRowDialogBox = QDialog()
-            EditRowDialogBox.setModal(True)
-            EditRowDialogBox.setWindowTitle("Editer Mètadonnèes")
-            EditRowDialogBox.setParent(self)
-            EditRowDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
-            EditRowDialogBox.setFixedWidth(self.width/4)
+        EditRowDialogBox = QDialog()
+        EditRowDialogBox.setModal(True)
+        EditRowDialogBox.setWindowTitle("Editer Mètadonnèes")
+        EditRowDialogBox.setParent(self)
+        EditRowDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
+        EditRowDialogBox.setFixedWidth(self.width/4)
 
-            EditRowDailogLayout = QVBoxLayout(EditRowDialogBox)
-            EditRowDailogLayout.setContentsMargins(50, 50, 50, 50)
+        EditRowDailogLayout = QVBoxLayout(EditRowDialogBox)
+        EditRowDailogLayout.setContentsMargins(50, 50, 50, 50)
 
-            # ****************** Title ********************
+        # ****************** Title ********************
 
-            # Title Label
-            TitleLabel = QLabel()
-            TitleLabel.setText("Titre:")
-            TitleLabel.setAlignment(Qt.AlignVCenter)
+        # Title Label
+        TitleLabel = QLabel()
+        TitleLabel.setText("Titre:")
+        TitleLabel.setAlignment(Qt.AlignVCenter)
 
-            EditRowDailogLayout.addWidget(TitleLabel)
+        EditRowDailogLayout.addWidget(TitleLabel)
 
-            # Title LineEdit
-            TitleLineEdit = QLineEdit()
-            TitleLineEdit.setText(Table.item(row, 1).text())
-            TitleLineEdit.setAlignment(Qt.AlignVCenter)
+        # Title LineEdit
+        TitleLineEdit = QLineEdit()
+        TitleLineEdit.setText(Table.item(row, 1).text())
+        TitleLineEdit.setAlignment(Qt.AlignVCenter)
 
-            EditRowDailogLayout.addWidget(TitleLineEdit)
+        EditRowDailogLayout.addWidget(TitleLineEdit)
 
-            # ****************** Author ********************
+        # ****************** Author ********************
 
-            # Author Label
-            AuthorLabel = QLabel()
-            AuthorLabel.setText("Author:")
-            AuthorLabel.setAlignment(Qt.AlignVCenter)
+        # Author Label
+        AuthorLabel = QLabel()
+        AuthorLabel.setText("Author:")
+        AuthorLabel.setAlignment(Qt.AlignVCenter)
 
-            EditRowDailogLayout.addWidget(AuthorLabel)
+        EditRowDailogLayout.addWidget(AuthorLabel)
 
-            # Author LineEdit
-            AuthorLineEdit = QLineEdit()
-            AuthorLineEdit.setText(Table.item(row, 2).text())
-            AuthorLineEdit.setAlignment(Qt.AlignVCenter)
+        # Author LineEdit
+        AuthorLineEdit = QLineEdit()
+        AuthorLineEdit.setText(Table.item(row, 2).text())
+        AuthorLineEdit.setAlignment(Qt.AlignVCenter)
 
-            EditRowDailogLayout.addWidget(AuthorLineEdit)
+        EditRowDailogLayout.addWidget(AuthorLineEdit)
 
-            # ****************** Year ********************
+        # ****************** Year ********************
 
-            # Year Label
-            YearLabel = QLabel()
-            YearLabel.setText("Year:")
-            YearLabel.setAlignment(Qt.AlignVCenter)
+        # Year Label
+        YearLabel = QLabel()
+        YearLabel.setText("Year:")
+        YearLabel.setAlignment(Qt.AlignVCenter)
 
-            EditRowDailogLayout.addWidget(YearLabel)
+        EditRowDailogLayout.addWidget(YearLabel)
 
-            # Year LineEdit
-            YearLineEdit = QLineEdit()
-            YearLineEdit.setValidator(QIntValidator(1000, 1000, self))
-            YearLineEdit.setText(Table.item(row, 3).text())
-            YearLineEdit.setAlignment(Qt.AlignVCenter)
+        # Year LineEdit
+        YearLineEdit = QLineEdit()
+        YearLineEdit.setValidator(QIntValidator(1000, 1000, self))
+        YearLineEdit.setText(Table.item(row, 3).text())
+        YearLineEdit.setAlignment(Qt.AlignVCenter)
 
-            EditRowDailogLayout.addWidget(YearLineEdit)
+        EditRowDailogLayout.addWidget(YearLineEdit)
 
-            # ****************** Tag ********************
+        # ****************** Tag ********************
 
-            # Tag Label
-            TagLabel = QLabel()
-            TagLabel.setText("Tags:")
-            TagLabel.setAlignment(Qt.AlignVCenter)
+        # Tag Label
+        TagLabel = QLabel()
+        TagLabel.setText("Tags:")
+        TagLabel.setAlignment(Qt.AlignVCenter)
 
-            EditRowDailogLayout.addWidget(TagLabel)
+        EditRowDailogLayout.addWidget(TagLabel)
 
-            # Tag LineEdit
-            TagTextEdit = QTextEdit()
-            TagTextEdit.setText(Table.item(row, 4).text())
-            TagTextEdit.setAlignment(Qt.AlignVCenter)
+        # Tag LineEdit
+        TagTextEdit = QTextEdit()
+        TagTextEdit.setText(Table.item(row, 4).text())
+        TagTextEdit.setAlignment(Qt.AlignVCenter)
 
-            EditRowDailogLayout.addWidget(TagTextEdit)
+        EditRowDailogLayout.addWidget(TagTextEdit)
 
-            # ****************** Quality ********************
+        # ****************** Quality ********************
 
-            # Quality Label
-            QualityLabel = QLabel()
-            QualityLabel.setText("Quality:")
-            QualityLabel.setAlignment(Qt.AlignVCenter)
+        # Quality Label
+        QualityLabel = QLabel()
+        QualityLabel.setText("Quality:")
+        QualityLabel.setAlignment(Qt.AlignVCenter)
 
-            EditRowDailogLayout.addWidget(QualityLabel)
+        EditRowDailogLayout.addWidget(QualityLabel)
 
-            # Quality LineEdit
-            QualityDoubleSpinBox = QDoubleSpinBox()
-            QualityDoubleSpinBox.setDecimals(0)
-            QualityDoubleSpinBox.setMinimum(1)
-            QualityDoubleSpinBox.setMaximum(5)
-            QualityDoubleSpinBox.setValue(int(Table.item(row, 5).text()))
-            QualityDoubleSpinBox.setAlignment(Qt.AlignVCenter)
+        # Quality LineEdit
+        QualityDoubleSpinBox = QDoubleSpinBox()
+        QualityDoubleSpinBox.setDecimals(0)
+        QualityDoubleSpinBox.setMinimum(1)
+        QualityDoubleSpinBox.setMaximum(5)
+        QualityDoubleSpinBox.setValue(int(Table.item(row, 5).text()))
+        QualityDoubleSpinBox.setAlignment(Qt.AlignVCenter)
 
-            EditRowDailogLayout.addWidget(QualityDoubleSpinBox)
+        EditRowDailogLayout.addWidget(QualityDoubleSpinBox)
 
-            # Edit Row Button Box
-            EditRowbuttonBox = QDialogButtonBox()
-            EditRowbuttonBox.setStandardButtons(QDialogButtonBox.Ok)
-            EditRowbuttonBox.button(QDialogButtonBox.Ok).setText('Enregistrer')
+        # Edit Row Button Box
+        EditRowbuttonBox = QDialogButtonBox()
+        EditRowbuttonBox.setStandardButtons(QDialogButtonBox.Ok)
+        EditRowbuttonBox.button(QDialogButtonBox.Ok).setText('Enregistrer')
 
-            EditRowDailogLayout.addWidget(EditRowbuttonBox)
+        EditRowDailogLayout.addWidget(EditRowbuttonBox)
 
-            EditRowbuttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+        EditRowbuttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
 
-            TitleLineEdit.textChanged.connect(lambda: self.CurrentTextChanged(TitleLineEdit, AuthorLineEdit, YearLineEdit, TagTextEdit, EditRowbuttonBox))
-            AuthorLineEdit.textChanged.connect(lambda: self.CurrentTextChanged(TitleLineEdit, AuthorLineEdit, YearLineEdit, TagTextEdit, EditRowbuttonBox))
-            YearLineEdit.textChanged.connect(lambda: self.CurrentTextChanged(TitleLineEdit, AuthorLineEdit, YearLineEdit, TagTextEdit, EditRowbuttonBox))
-            TagTextEdit.textChanged.connect(lambda: self.CurrentTextChanged(TitleLineEdit, AuthorLineEdit, YearLineEdit, TagTextEdit, EditRowbuttonBox))
-            QualityDoubleSpinBox.valueChanged.connect(lambda: self.CurrentTextChanged(TitleLineEdit, AuthorLineEdit, YearLineEdit, TagTextEdit, EditRowbuttonBox))
+        TitleLineEdit.textChanged.connect(lambda: self.CurrentTextChanged(TitleLineEdit, AuthorLineEdit, YearLineEdit, TagTextEdit, EditRowbuttonBox))
+        AuthorLineEdit.textChanged.connect(lambda: self.CurrentTextChanged(TitleLineEdit, AuthorLineEdit, YearLineEdit, TagTextEdit, EditRowbuttonBox))
+        YearLineEdit.textChanged.connect(lambda: self.CurrentTextChanged(TitleLineEdit, AuthorLineEdit, YearLineEdit, TagTextEdit, EditRowbuttonBox))
+        TagTextEdit.textChanged.connect(lambda: self.CurrentTextChanged(TitleLineEdit, AuthorLineEdit, YearLineEdit, TagTextEdit, EditRowbuttonBox))
+        QualityDoubleSpinBox.valueChanged.connect(lambda: self.CurrentTextChanged(TitleLineEdit, AuthorLineEdit, YearLineEdit, TagTextEdit, EditRowbuttonBox))
 
-            EditRowbuttonBox.accepted.connect(EditRowDialogBox.accept)
-            EditRowbuttonBox.rejected.connect(EditRowDialogBox.reject)
+        EditRowbuttonBox.accepted.connect(EditRowDialogBox.accept)
+        EditRowbuttonBox.rejected.connect(EditRowDialogBox.reject)
 
-            EditRowbuttonBox.accepted.connect(lambda: self.EditRow(TitleLineEdit.text(),
-                                                                   AuthorLineEdit.text(),
-                                                                   YearLineEdit.text(),
-                                                                   TagTextEdit.toPlainText(),
-                                                                   QualityDoubleSpinBox.value(),
-                                                                   row,
-                                                                   df,
-                                                                   Table))
+        EditRowbuttonBox.accepted.connect(lambda: self.EditRow(TitleLineEdit.text(),
+                                                               AuthorLineEdit.text(),
+                                                               YearLineEdit.text(),
+                                                               TagTextEdit.toPlainText(),
+                                                               QualityDoubleSpinBox.value(),
+                                                               row,
+                                                               df,
+                                                               Table))
 
-            EditRowDialogBox.exec_()
-
-        except Exception as e:
-            print(str(e))
+        EditRowDialogBox.exec_()
 
     # Enable/Disable Button on Text Change
     def CurrentTextChanged(self, TitleLineEdit, AuthorLineEdit, YearLineEdit, TagTextEdit, EditRowbuttonBox):
@@ -579,21 +572,14 @@ class Window(QMainWindow):
 
     # Edit Row
     def EditRow(self, Title, Author, Year, Tag, Quality, row, df, Table):
-        try:
-            df.iloc[row, 1] = Title
-            df.iloc[row, 2] = Author
-            df.iloc[row, 3] = int(Year)
-            df.iloc[row, 4] = Tag
-            df.iloc[row, 5] = int(Quality)
+        df.iloc[row, 1] = Title
+        df.iloc[row, 2] = Author
+        df.iloc[row, 3] = int(Year)
+        df.iloc[row, 4] = Tag
+        df.iloc[row, 5] = int(Quality)
 
-            df.to_pickle("Library.pkl")
-            self.Library()
-
-        except Exception as e:
-            print(str(e))
-
-
-
+        df.to_pickle("Library.pkl")
+        self.Library()
 
     # Delete Row
     def DeleteRow(self, df, Table):
