@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+from PyQt5.QtPrintSupport import *
 
 from PIL import Image
 
@@ -97,7 +98,7 @@ class Window(QMainWindow):
         ImprimerButton = QAction(QIcon("Images/Imprimer.png"), 'Imprimer...', self)
         ImprimerButton.setShortcut('Ctrl+P')
         ImprimerButton.setStatusTip('Imprimer...')
-        #ImprimerButton.triggered.connect(self.OpenFileWindow)
+        ImprimerButton.triggered.connect(self.Imprimer)
         FichierMenu.addAction(ImprimerButton)
 
         # Bibliothèque Button
@@ -126,13 +127,43 @@ class Window(QMainWindow):
         # ***********************************************************************************
 
         self.toolbar = self.addToolBar("Show Toolbar")
-        self.toolbar.setToolButtonStyle(Qt.ToolButtonIconOnly | Qt.AlignLeading)  # <= Toolbuttonstyle
+        self.toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon | Qt.AlignLeading)  # <= Toolbuttonstyle
         self.toolbar.setMovable(False)
 
-        # WordAct = QAction(QIcon('Images/Word.png'), 'Word', self)
-        # #WordAct.triggered.connect(lambda: self.ImportFileWindow("Word"))
-        # self.toolbar.addAction(WordAct)
+        # Ouvrir
+        OuvrirAct = QAction(QIcon('Images/Ouvrir.png'), 'Ouvrir', self)
+        OuvrirAct.triggered.connect(self.ouvrir)
+        self.toolbar.addAction(OuvrirAct)
 
+        # Print
+        ImprimerAct = QAction(QIcon("Images/Imprimer.png"), 'Imprimer', self)
+        ImprimerButton.triggered.connect(self.Imprimer)
+        self.toolbar.addAction(ImprimerButton)
+
+        # Zoom In
+        ZoomInAct = QAction(QIcon('Images/Zoom In.png'), 'Zoom +', self)
+        #ZoomInAct.triggered.connect(self.ouvrir)
+        self.toolbar.addAction(ZoomInAct)
+
+        # Zoom Out
+        ZoomOutAct = QAction(QIcon('Images/Zoom Out.png'), 'Zoom -', self)
+        # ZoomOutAct.triggered.connect(self.ouvrir)
+        self.toolbar.addAction(ZoomOutAct)
+
+        # Info
+        InfoAct = QAction(QIcon('Images/Info.png'), 'Info', self)
+        InfoAct.triggered.connect(self.AboutWindow)
+        self.toolbar.addAction(InfoAct)
+
+        # Previous Arrow
+        PreviousAct = QAction(QIcon('Images/Previous.png'), 'Previous', self)
+        PreviousAct.triggered.connect(self.PreviousToolAction)
+        self.toolbar.addAction(PreviousAct)
+
+        # Next Arrow
+        NextAct = QAction(QIcon('Images/Next.png'), 'Next', self)
+        NextAct.triggered.connect(self.NextToolAction)
+        self.toolbar.addAction(NextAct)
 
         self.toolbar.addSeparator()
         self.toolbar.setContextMenuPolicy(Qt.PreventContextMenu)
@@ -153,6 +184,9 @@ class Window(QMainWindow):
 
     # Tab Close Handler
     def tabCloseHandler(self, index):
+        if not self.tabWidget.tabText(index) ==  'Bibliothèque':
+            self.ComicList = [comic for comic in self.ComicList if not comic.ComicName == self.tabWidget.tabText(index)]
+
         self.tabWidget.removeTab(index)
 
     # Open File
@@ -165,7 +199,7 @@ class Window(QMainWindow):
                 patoolib.extract_archive(path[0], outdir="Dummy/")
 
                 dummyComic = Comic()
-                dummyComic.setComicName(os.path.splitext(ntpath.basename(path[0]))[0])
+                dummyComic.setComicName(ntpath.basename(path[0]))
 
                 if len (next(os.walk('./Dummy/'))[1]) > 0:
                     # Converting Files to Pixmap
@@ -206,10 +240,8 @@ class Window(QMainWindow):
 
                 # Images Vertical Layout
                 ImagesLeftBarLayout = QVBoxLayout(LeftWidget)
-                ImagesLeftBarLayout.setContentsMargins(LeftScrollArea.width()*0.15,
-                                                       LeftScrollArea.height()*0.05,
-                                                       LeftScrollArea.width()*0.15,
-                                                       LeftScrollArea.height()*0.05)
+                ImagesLeftBarLayout.setContentsMargins(20, 20, 20, 20)
+
                 ImagesLeftBarLayout.setAlignment(Qt.AlignHCenter)
                 ImagesLeftBarLayout.addSpacing(50)
 
@@ -278,7 +310,7 @@ class Window(QMainWindow):
                 RightWidgetLayout.addWidget(ButtonBox, 10)
 
                 # Adding ComicTab to TabWidget
-                self.tabWidget.addTab(ComicTab, os.path.splitext(ntpath.basename(path[0]))[0])
+                self.tabWidget.addTab(ComicTab, ntpath.basename(path[0]))
                 self.tabWidget.setCurrentWidget(ComicTab)
 
         except Exception as e:
@@ -304,7 +336,8 @@ class Window(QMainWindow):
         if dummyComic.currentIndex == 1:
             dummyComic.PreviousButton.setDisabled(True)
 
-        dummyComic.Previous()
+        if not dummyComic.currentIndex == 0:
+            dummyComic.Previous()
 
         if dummyComic.currentIndex == len(dummyComic.ComicImageList) - 2:
             dummyComic.NextButton.setDisabled(False)
@@ -316,7 +349,8 @@ class Window(QMainWindow):
         if dummyComic.currentIndex == 0:
             dummyComic.PreviousButton.setDisabled(False)
 
-        dummyComic.Next()
+        if not dummyComic.currentIndex == len(dummyComic.ComicImageList)-1:
+            dummyComic.Next()
 
         if dummyComic.currentIndex == len(dummyComic.ComicImageList)-1:
             dummyComic.NextButton.setDisabled(True)
@@ -340,6 +374,39 @@ class Window(QMainWindow):
 
 
         dummyComic.MainImageLabel.setPixmap(dummyComic.ComicImageList[dummyComic.currentIndex].scaled(dummyComic.MainImageLabel.width(), dummyComic.MainImageLabel.height(),Qt.KeepAspectRatio))
+
+    # Previous Image Tool
+    def PreviousToolAction(self):
+        # Current Tab Text
+        CurrentTabText = self.tabWidget.tabText(self.tabWidget.indexOf(self.tabWidget.currentWidget()))
+
+        for comic in self.ComicList:
+            if comic.ComicName == CurrentTabText:
+                self.PreviousImage(comic)
+                break
+
+    # Next Image Tool
+    def NextToolAction(self):
+        # Current Tab Text
+        CurrentTabText = self.tabWidget.tabText(self.tabWidget.indexOf(self.tabWidget.currentWidget()))
+
+        for comic in self.ComicList:
+            if comic.ComicName == CurrentTabText:
+                self.NextImage(comic)
+                break
+
+    # Print
+    def Imprimer(self):
+        printer = QPrinter(QPrinter.HighResolution)
+
+        PrintDialog = QPrintDialog(printer, self)
+        PrintDialog.setWindowTitle('Print')
+
+        if PrintDialog.exec_() == QPrintDialog.Accepted:
+            if self.tabWidget.currentWidget() is not None:
+                pixmap = QPixmap(self.tabWidget.currentWidget().size())
+                self.tabWidget.currentWidget().render(pixmap)
+                pixmap.print_(printer)
 
     # Library
     def Library(self):
@@ -390,8 +457,8 @@ class Window(QMainWindow):
                     # For Cover Picture
                     if j == 0:
                         intItem = QTableWidgetItem()
-                        intItem.setData(Qt.DecorationRole, Image.open(io.BytesIO(newitem)).toqpixmap())
 
+                        intItem.setData(Qt.DecorationRole, Image.open(io.BytesIO(newitem)).toqpixmap().scaled(LibraryTable.columnWidth(j), LibraryTable.rowHeight(i)*4, Qt.KeepAspectRatio))
                         LibraryTable.setItem(i, j, intItem)
                         LibraryTable.item(i, j).setTextAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
                         LibraryTable.item(i, j).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
