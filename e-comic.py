@@ -62,6 +62,7 @@ class Window(QMainWindow):
         self.width = QDesktopWidget().screenGeometry(0).width()
         self.height = QDesktopWidget().screenGeometry(0).height()
 
+        # Comic List for keeping checks on no of comics
         self.ComicList = []
 
         self.initWindows()
@@ -169,7 +170,7 @@ class Window(QMainWindow):
         self.toolbar.setContextMenuPolicy(Qt.PreventContextMenu)
 
         # ***********************************************************************************
-        # *******************************  ToolBar ******************************************
+        # ********************************  tabWidget ***************************************
         # ***********************************************************************************
 
         self.tabWidget = QTabWidget()
@@ -184,9 +185,11 @@ class Window(QMainWindow):
 
     # Tab Close Handler
     def tabCloseHandler(self, index):
+        # Removing Comic Tab from ComicList
         if not self.tabWidget.tabText(index) ==  'Bibliothèque':
             self.ComicList = [comic for comic in self.ComicList if not comic.ComicName == self.tabWidget.tabText(index)]
 
+        # Removing Tab
         self.tabWidget.removeTab(index)
 
     # Open File
@@ -410,6 +413,7 @@ class Window(QMainWindow):
 
     # Library
     def Library(self):
+        # If LibraryTab already exists then replacing the original Tab
         LibraryTabFlag = False
 
         for tabindex in range(self.tabWidget.count()):
@@ -440,15 +444,18 @@ class Window(QMainWindow):
         LibraryTable.setHorizontalHeaderLabels(["Cover", "Title", "Author", "Year", "Tags", "Quality/5", "Edit", "Delete"])
         LibraryTable.horizontalHeader().setStyleSheet("::section {""background-color: grey;  color: white;}")
 
-
         for i in range(LibraryTable.columnCount()):
             LibraryTable.horizontalHeaderItem(i).setFont(QFont("Ariel Black", 12))
             LibraryTable.horizontalHeaderItem(i).setFont(QFont(LibraryTable.horizontalHeaderItem(i).text(), weight=QFont.Bold))
 
+        # Checking if Library File Exists
         if os.path.exists('Library.pkl'):
+            # Loading dataframe from Library Pickle File
             df = pd.read_pickle("Library.pkl")
 
+            # Displaying data from Library in Tablular Form
             for i in range(len(df.index)):
+                # Inserting row in Table
                 LibraryTable.insertRow(i)
 
                 for j in range(len(df.columns)):
@@ -463,6 +470,7 @@ class Window(QMainWindow):
                         LibraryTable.item(i, j).setTextAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
                         LibraryTable.item(i, j).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
 
+                    # For Text and Numeric Data
                     else:
                         if isinstance(newitem, (int, np.integer)):
                             newitem = int(newitem)
@@ -475,24 +483,31 @@ class Window(QMainWindow):
                         LibraryTable.item(i, j).setTextAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
                         LibraryTable.item(i, j).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
 
+                # Adding Edit Button in Each Row
                 EditButton = QPushButton("Edit")
                 EditButton.clicked.connect(lambda: self.EditRowDialog(df, LibraryTable))
                 LibraryTable.setCellWidget(i, 6, EditButton)
 
+                # Adding Delete Button in Each Row
                 DeleteButton = QPushButton("Delete")
                 DeleteButton.clicked.connect(lambda: self.DeleteRow(df, LibraryTable))
                 LibraryTable.setCellWidget(i, 7, DeleteButton)
 
+
+        # Adjusting whole Table to fit the Tab
         LibraryTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
         LibraryTable.resizeColumnsToContents()
         LibraryTable.resizeRowsToContents()
 
-        LibraryTable.setSortingEnabled(True)
-        LibraryTable.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
-
         for i in range(LibraryTable.columnCount()):
             LibraryTable.horizontalHeader().setSectionResizeMode(i, QHeaderView.Stretch)
 
+        # Enabling Sorting
+        LibraryTable.setSortingEnabled(True)
+        LibraryTable.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+
+
+        # Adding LibraryTab to TabWidget
         if not LibraryTabFlag:
             self.tabWidget.addTab(LibraryTab, 'Bibliothèque')
             self.tabWidget.setCurrentWidget(LibraryTab)
@@ -507,6 +522,7 @@ class Window(QMainWindow):
         if button:
             row = Table.indexAt(button.pos()).row()
 
+        # Edit Row Dialog
         EditRowDialogBox = QDialog()
         EditRowDialogBox.setModal(True)
         EditRowDialogBox.setWindowTitle("Editer Mètadonnèes")
@@ -639,13 +655,16 @@ class Window(QMainWindow):
 
     # Edit Row
     def EditRow(self, Title, Author, Year, Tag, Quality, row, df, Table):
+        # Updating data from Edit Dialog
         df.iloc[row, 1] = Title
         df.iloc[row, 2] = Author
         df.iloc[row, 3] = int(Year)
         df.iloc[row, 4] = Tag
         df.iloc[row, 5] = int(Quality)
 
+        # updating Pickle File
         df.to_pickle("Library.pkl")
+        # Reopening/Refreshing Library Tab
         self.Library()
 
     # Delete Row
@@ -654,11 +673,14 @@ class Window(QMainWindow):
                                             'Are you Sure you want to delete this entry?',
                                             QMessageBox.Yes | QMessageBox.No)
 
+        # If user chooses Yes
         if Deletechoice == QMessageBox.Yes:
             button = self.sender()
             if button:
                 df = df[df.Title != Table.item(Table.indexAt(button.pos()).row(), 1).text()]
+                # updating Pickle File
                 df.to_pickle("Library.pkl")
+                # Reopening/Refreshing Library Tab
                 self.Library()
         else:
             pass
@@ -666,8 +688,9 @@ class Window(QMainWindow):
     # Close Application / Exit
     def closeEvent(self, event):
         ExitWindowChoice = QMessageBox.question(self, 'Exit',
-                                                             "Are you sure you want to exit?",
-                                                             QMessageBox.Yes | QMessageBox.No)
+                                                "Are you sure you want to exit?",
+                                                QMessageBox.Yes | QMessageBox.No)
+        # If user chooses Yes
         if ExitWindowChoice == QMessageBox.Yes:
             event.accept()
         else:
