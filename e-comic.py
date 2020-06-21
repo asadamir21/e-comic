@@ -642,7 +642,10 @@ class Window(QMainWindow):
         # Year LineEdit
         YearLineEdit = QLineEdit()
         YearLineEdit.setValidator(QIntValidator(1000, 1000, self))
-        YearLineEdit.setText(Table.item(row, 3).text())
+        if Table.item(row, 3).text() == 'nan':
+            YearLineEdit.setText('1900')
+        else:
+            YearLineEdit.setText(Table.item(row, 3).text())
         YearLineEdit.setAlignment(Qt.AlignVCenter)
 
         EditRowDailogLayout.addWidget(YearLineEdit)
@@ -677,7 +680,10 @@ class Window(QMainWindow):
         QualityDoubleSpinBox.setDecimals(0)
         QualityDoubleSpinBox.setMinimum(1)
         QualityDoubleSpinBox.setMaximum(5)
-        QualityDoubleSpinBox.setValue(int(Table.item(row, 5).text()))
+        try:
+            QualityDoubleSpinBox.setValue(int(Table.item(row, 5).text()))
+        except:
+            QualityDoubleSpinBox.setValue(1)
         QualityDoubleSpinBox.setAlignment(Qt.AlignVCenter)
 
         EditRowDailogLayout.addWidget(QualityDoubleSpinBox)
