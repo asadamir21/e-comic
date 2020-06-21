@@ -143,18 +143,23 @@ class Window(QMainWindow):
 
         # Zoom In
         ZoomInAct = QAction(QIcon('Images/Zoom In.png'), 'Zoom +', self)
-        #ZoomInAct.triggered.connect(self.ouvrir)
+        ZoomInAct.triggered.connect(self.ZoomInActAction)
         self.toolbar.addAction(ZoomInAct)
 
         # Zoom Out
         ZoomOutAct = QAction(QIcon('Images/Zoom Out.png'), 'Zoom -', self)
-        # ZoomOutAct.triggered.connect(self.ouvrir)
+        ZoomOutAct.triggered.connect(self.ZoomOutActAction)
         self.toolbar.addAction(ZoomOutAct)
 
         # Info
         InfoAct = QAction(QIcon('Images/Info.png'), 'Info', self)
         InfoAct.triggered.connect(self.AboutWindow)
         self.toolbar.addAction(InfoAct)
+
+        # Save
+        SaveAct = QAction(QIcon('Images/Save.png'), 'Save', self)
+        SaveAct.triggered.connect(self.SaveActAction)
+        self.toolbar.addAction(SaveAct)
 
         # Previous Arrow
         PreviousAct = QAction(QIcon('Images/Previous.png'), 'Previous', self)
@@ -308,7 +313,6 @@ class Window(QMainWindow):
 
                     PreviousButton.clicked.connect(lambda: self.PreviousImage(dummyComic))
                     NextButton.clicked.connect(lambda: self.NextImage(dummyComic))
-
                 self.ComicList.append(dummyComic)
                 RightWidgetLayout.addWidget(ButtonBox, 10)
 
@@ -377,6 +381,67 @@ class Window(QMainWindow):
 
 
         dummyComic.MainImageLabel.setPixmap(dummyComic.ComicImageList[dummyComic.currentIndex].scaled(dummyComic.MainImageLabel.width(), dummyComic.MainImageLabel.height(),Qt.KeepAspectRatio))
+
+    # Zoom In Action
+    def ZoomInActAction(self):
+        # Current Tab Text
+        CurrentTabText = self.tabWidget.tabText(self.tabWidget.indexOf(self.tabWidget.currentWidget()))
+
+        for comic in self.ComicList:
+            if comic.ComicName == CurrentTabText:
+                comic.MainImageLabel.setPixmap(
+                    comic.MainImageLabel.pixmap().scaled(
+                        comic.MainImageLabel.pixmap().width()*2,
+                        comic.MainImageLabel.pixmap().height()*2,
+                        Qt.KeepAspectRatio
+                    )
+                )
+
+    # Zoom Out Action
+    def ZoomOutActAction(self):
+        # Current Tab Text
+        CurrentTabText = self.tabWidget.tabText(self.tabWidget.indexOf(self.tabWidget.currentWidget()))
+
+        for comic in self.ComicList:
+            if comic.ComicName == CurrentTabText:
+                comic.MainImageLabel.setPixmap(
+                    comic.MainImageLabel.pixmap().scaled(
+                        comic.MainImageLabel.pixmap().width() / 2,
+                        comic.MainImageLabel.pixmap().height() / 2,
+                        Qt.KeepAspectRatio
+                    )
+                )
+
+    # Save
+    def SaveActAction(self):
+        # Current Tab Text
+        CurrentTabText = self.tabWidget.tabText(self.tabWidget.indexOf(self.tabWidget.currentWidget()))
+
+        for comic in self.ComicList:
+            if comic.ComicName == CurrentTabText:
+                if os.path.exists('Library.pkl'):
+                    # Loading dataframe from Library Pickle File
+                    df = pd.read_pickle("Library.pkl")
+                else:
+                    df = pd.DataFrame(columns=["Cover", "Title", "Author", "Year", "Tags", "Quality/5"])
+
+                if not any(df['Title'] == os.path.splitext(comic.ComicName)[0]):
+                    ba = QByteArray()
+                    buff = QBuffer(ba)
+                    buff.open(QIODevice.WriteOnly)
+                    ok = comic.ComicImageList[0].save(buff, "PNG")
+                    assert ok
+
+                    new_row = {'Cover': ba.data(), 'Title':  os.path.splitext(comic.ComicName)[0]}
+                    df = df.append(new_row, ignore_index=True)
+                    df.to_pickle('Library.pkl')
+
+                    QMessageBox.information(self, 'Saved',
+                                            'Comic Added to Library', QMessageBox.Ok)
+
+                else:
+                    QMessageBox.warning(self, 'Warning',
+                                        'Comic named ' + comic.ComicName + ' is already Added', QMessageBox.Ok)
 
     # Previous Image Tool
     def PreviousToolAction(self):
